@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Canal29 - Carcasse UI Design</title>
+	<style>
+		.TV {
+			display: block;
+			position: absolute;
+			left: 0;
+			top: 0;
+			height: 720px;
+			width: 1280px;
+			background: #000;
+		}
+
+		#acts {
+			display: block;
+			position: absolute;
+			left: 52px;
+			top: 52px;
+			height: 616px;
+			width: 250px;
+			background: #444;
+			text-align: center;
+			font-size: 32px;
+			font-weight: 700;
+			font-family: helvetica;
+			color: #fff;
+		}
+
+		#acts button.fv {
+			width: 50px;
+			height: 50px;
+		}
+
+		#acts button.fh {
+			width: 50px;
+			height: 50px;
+			display: inline-block;
+			margin: 0 22px;
+		}
+
+		#acts > div {
+			margin: 8px 25px;
+			display: block;
+			width: 200px;
+			font: 24px arial;
+    		font-weight: 700;
+		}
+
+		#acts .pion {
+			display: inline-block;
+			width: 100px;
+			height: 100px;
+			margin: 5px;
+			font-size: 64px;
+			font-weight: 700;
+			font-family: helvetica;
+			text-align: center;
+			line-height: 90px;
+			color: #fff;
+		}
+		
+		#acts .pion.j0 {
+			background: #0af;
+
+		}
+		#acts .pion.j1 {
+			background: #f60;
+		}
+		
+		
+		#tak {
+			display: block;
+			position: absolute;
+			left: 500px;
+			top: 60px;
+			height: 595px;
+			width: 595px;
+			border: 5px solid #fff;
+		    border-radius: 16px;
+		}
+
+		#tak .pion {
+			display: block;
+			position: absolute;
+			transition: 500ms top cubic-bezier(0.66, 0.15, 0.79, 1.04), 500ms left cubic-bezier(0.66, 0.15, 0.79, 1.04);
+			font-weight: 700;
+			font-family: helvetica;
+			text-align: center;
+			color: #fff;
+		}
+		
+		#tak .pion.j0 {
+			background: #0af;
+
+		}
+		#tak .pion.j1 {
+			background: #f60;
+		}
+
+		#tak.table5 .pion {
+			width: 100px;
+			height: 100px;
+			margin: 3px;
+			font-size: 64px;
+			line-height: 90px;
+		}
+		
+		#tak.table5 .col0 { left: 5px; } #tak.table5 .row0 { top: 5px; }
+		#tak.table5 .col1 { left: 125px; } #tak.table5 .row1 { top: 125px; }
+		#tak.table5 .col2 { left: 245px; } #tak.table5 .row2 { top: 245px; }
+		#tak.table5 .col3 { left: 365px; } #tak.table5 .row3 { top: 365px; }
+		#tak.table5 .col4 { left: 485px; } #tak.table5 .row4 { top: 485px; }
+
+		#tak.table7 .pion {
+			width: 78px;
+			height: 78px;
+			margin: 0px;
+			font-size: 52px;
+			line-height: 72px;
+			border: 1px solid #fff;
+		}
+		
+		#tak.table7 .col0 { left: 5px; } #tak .row0 { top: 5px; }
+		#tak.table7 .col1 { left: 89px; } #tak .row1 { top: 89px; }
+		#tak.table7 .col2 { left: 173px; } #tak .row2 { top: 173px; }
+		#tak.table7 .col3 { left: 257px; } #tak .row3 { top: 257px; }
+		#tak.table7 .col4 { left: 341px; } #tak .row4 { top: 341px; }
+		#tak.table7 .col5 { left: 425px; } #tak .row5 { top: 425px; }
+		#tak.table7 .col6 { left: 509px; } #tak .row6 { top: 509px; }
+
+
+	</style>
+</head>
+<body>
+	<div class="TV">
+		<div id="acts">
+			<button onclick="reset()">RESET</button>
+			<hr>
+			<div id="indic">
+				<div>Tour</div>
+				<div class="pion"></div>
+			</div>
+			<hr>
+			<div>
+				<button class="fv" onclick="playdir('up')">&UpArrow;</button>
+			</div>
+			<div>
+				<button class="fh" onclick="playdir('left')">&LeftArrow;</button>
+				<button class="fh" onclick="playdir('right')">&RightArrow;</button>
+			</div>
+			<div>
+				<button class="fv" onclick="playdir('down')">&DownArrow;</button>
+			</div>
+		</div>
+		<div id="tak">
+		</div>
+	</div>
+	<script>
+		var tak = document.getElementById('tak');
+		var indic = document.getElementById('indic');
+		var size = 7;
+		var size2 = size*size-1;
+		var center = Math.floor(size/2);
+		var pos = [center,center];
+		var player = 0;
+		var vspc = true;
+		var _jp = ['#','@'];
+
+		tak.className = "table"+size;
+
+		window.addEventListener("keydown", function(e){
+			var _key;
+			if ((!vspc || player===1) && (_key = e.key.match(/Arrow(Left|Right|Up|Down)/))) {
+				playdir(_key[1].toLowerCase());
+			}
+		}, false);
+		
+		
+		function reset() {
+			tak.innerHTML = '';
+			var _j = 0;
+			
+			for(var i=size2; i>=0; i--) {
+				_j = i%2;
+
+				if (i!=Math.floor(size2/2)) {
+					(function(i) {
+						var _pion = document.createElement("div");
+						_pion.id="pion"+_j+"-"+i;
+						_pion.textContent = _jp[_j];
+						_pion.setAttribute('j', _j);
+						_pion.className = "pion j"+_j+" row"+center+" col"+center;
+						var _destclass = "pion j"+_j+" row"+(i%size)+" col"+Math.floor(i/size);
+						
+						tak.appendChild(_pion);
+						setTimeout(function(){
+							_pion.className = _destclass;
+						},200+(4000/(size*size))*i);
+					})(i);
+				}
+			}
+			
+			pos = [center,center];
+			player = 1;
+			
+			indic.querySelector('.pion').className = "pion j"+player;
+			indic.querySelector('.pion').innerText = _jp[player];
+		}
+		
+		function getp(_r, _c, _j) {
+			var _cn = '.pion.row'+_r+'.col'+_c;
+			var _el = null;
+			if (_j!==undefined) {
+				_cn += '.j'+_j;
+			}
+			return document.querySelector(_cn);
+		}
+		
+		function allowed(_j) {
+			if (_j===undefined) _j = player;
+			var _ret = [];
+
+			var _check = function(_r,_c,_dir) {
+				var _el = getp(_r, _c, _j);
+				if (_el) _ret.push({row:_r,col: _c,dir: _dir, pion: _el});
+			};
+
+			var _row = pos[0];
+			var _col = pos[1];
+			_check(_row+1,_col, 'up');
+			_check(_row-1,_col, 'down');
+			_check(_row,_col+1, 'left');
+			_check(_row,_col-1, 'right');
+			return _ret;
+		}
+		
+		function combien(_j) {
+			return allowed(_j).length;
+		}
+		
+		function playdir(dir) {
+			var _ppos = [].concat(pos);
+			switch(dir) { // où doit se trouver le pion du joueur pour jouer dans cette direction ?
+				case 'up': // en dessous
+					_ppos[0]++;
+					break;
+				case 'down': // au dessus
+					_ppos[0]--;
+					break;
+				case 'left': // à droite
+					_ppos[1]++;
+					break;
+				case 'right': // à gauche
+					_ppos[1]--;
+					break;
+			}
+			
+			var _pion = document.querySelector('.pion.j'+player+'.row'+_ppos[0]+'.col'+_ppos[1]);
+			
+			if (_pion) {
+				_pion.className = "pion j"+player+" row"+pos[0]+' col'+pos[1];
+				pos = _ppos;
+				player = 1-player;
+				
+				if (combien()==0) {
+					document.querySelectorAll('.pion').forEach(function(p,i){setTimeout(function(){p.className = p.className.replace('j'+(player),'j'+(1-player));},(1000/(size*size))*i)});
+					setTimeout(reset,5000);
+					return;
+				}
+
+				console.log("ok, maintenant à "+_jp[player]+" de jouer");
+				indic.querySelector('.pion').className = "pion j"+player;
+				indic.querySelector('.pion').innerText = _jp[player];
+
+				if (vspc && player === 0) {
+					var _allowed = allowed();
+					if (_allowed.length == 1) {
+						setTimeout(function(){playdir(_allowed[0].dir)},500);
+					} else {
+						setTimeout(function(){playdir(_allowed[0].dir)},500);
+					}
+				}
+			} else {
+				console.log("nope");
+			}
+			
+		}
+		
+		setTimeout(function() {
+			reset();
+		}, 200);
+				
+	</script>
+</body>
+</html>
